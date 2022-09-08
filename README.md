@@ -1,40 +1,27 @@
-# electron-quick-start
+# ASSEMBLY 그래프 게임 - Electron 클라이언트
 
-**Clone and run for a quick way to see Electron in action.**
+### ⚠ 주의사항
+ - 코드가 더럽고, 불안정합니다. 리얼월드 시나리오에 적용하지 마세요. 
+ - 실행 전 서버와 클라이언트들의 시간을 동기화 하세요.
+ - 본 소프트웨어에 의해서 발생하는 일들에 대해 저작자는 책임이 없습니다. (MIT 라이선스 참고)
 
-This is a minimal Electron application based on the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start) within the Electron documentation.
 
-A basic Electron application needs just these files:
-
-- `package.json` - Points to the app's main file and lists its details and dependencies.
-- `main.js` - Starts the app and creates a browser window to render HTML. This is the app's **main process**.
-- `index.html` - A web page to render. This is the app's **renderer process**.
-
-You can learn more about each of these components within the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start).
-
-## To Use
-
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
-
-```bash
-# Clone this repository
-git clone https://github.com/electron/electron-quick-start
-# Go into the repository
-cd electron-quick-start
-# Install dependencies
+### 실행하기
+1. 의존성을 설치합니다.
+```
 npm install
-# Run the app
+```
+2. 실행하기
+```
 npm start
 ```
 
-Note: If you're using Linux Bash for Windows, [see this guide](https://www.howtogeek.com/261575/how-to-run-graphical-linux-desktop-applications-from-windows-10s-bash-shell/) or use `node` from the command prompt.
+### 빌드하기
+바이너리를 빌드할 수 있습니다.
 
-## Resources for Learning Electron
+```
+npm run make
+```
 
-- [electronjs.org/docs](https://electronjs.org/docs) - all of Electron's documentation
-- [electron/electron-quick-start](https://github.com/electron/electron-quick-start) - a very basic starter Electron app
-- [hokein/electron-sample-apps](https://github.com/hokein/electron-sample-apps) - small demo apps for the various Electron APIs
-
-## License
-
-[CC0 1.0 (Public Domain)](LICENSE.md)
+### 문의하기
+이메일 <hi[at]krrrr.dev> 나 깃허브 이슈를 이용해 주세요.

@@ -1,19 +1,399 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
-    <link href="./styles.css" rel="stylesheet">
-    <title>Hello World!</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' 'unsafe-inline' ws://43.200.238.221:*/socket.io/ http://43.200.238.221:*/socket.io/ https://unpkg.com/ https://*.jsdelivr.net/ http://43.200.238.221:5000/; script-src 'self' 'unsafe-inline' ws://43.200.238.221:*/socket.io/ https://unpkg.com/ 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+    />
+
+    <link href="./styles.css" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@3"></script>
+    <title>어셈블리 부스 베팅 클라이언트</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
+    <!--<h1>Hello World!</h1>
     We are using Node.js <span id="node-version"></span>,
     Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+    and Electron <span id="electron-version"></span>.-->
+
+    <div class="parent" id="app">
+      <!-- Graph -->
+      <div class="div1" :class="{ bg_red: disconnected || is_crashed, bg_green: is_counting_scores }">
+        <h1 id="score" class="vectrex yellow" :class="{ red: disconnected || is_crashed, green: is_counting_scores }">{{ score }}</h1>
+        <canvas id="smoothie-chart" width="720" height="540"></canvas>
+        <br><br><br>
+        <p class="vectrex" style="display:inline; margin-right: 10px; margin-top: 5px; font-size: x-large; font-family: 'Vectrex-Bold' !important;">
+          히스토리: 
+        </p>
+        <p v-for="(h, index) in history" class="vectrex" :class="{ red: h < 180, green: h >= 180}" style="display:inline; margin-right: 10px; margin-top: 5px; font-size: x-large; font-family: 'Vectrex-Bold' !important;" >
+          {{ (h/100).toFixed(2) }}
+        </p>
+
+      </div>
+
+      <!-- Login -->
+      <div class="div2" :class="{ hidden: loggedIn }">
+        <h1>시작하려면 로그인하세요.</h1>
+        <p class="vectrex">{{ login_msg }}</p>
+        <form @submit.prevent="sendLogin">
+          <div class="login-container vectrex">
+            <input
+              v-model="username"
+              type="username"
+              placeholder="고유학번"
+              name="username"
+              required
+              autofocus
+            />
+            <input
+              v-model="password"
+              type="password"
+              placeholder="비밀번호"
+              name="password"
+              required
+            />
+
+            <button class="loginbutton" type="submit">로그인</button>
+          </div>
+        </form>
+        <em style="font-size: small;">
+          거래소에서 계정을 먼저 생성하신 후에 이용하실 수 있습니다.
+          <br />
+          타인의 계정을 이용하실 경우에는 먼저 스텝에게 말씀해 주세요.
+        </em>
+      </div>
+
+      <!-- Bet -->
+      <div class="div2" :class="{ hidden: !loggedIn }">
+        <h1 class="green">베팅하기</h1>
+        <p class="vectrex" style="margin: 0">
+          {{ user["stu_num"] + " " + user["stu_name"] }} 님
+        </p>
+        <p class="vectrex" style="font-size:x-large; margin-top: 10px; margin-bottom: 10px;">
+          잔고: <b class="green">{{ user["balance"] }} AST</b>
+        </p>
+        <br>
+
+
+        <form @submit.prevent="sendBet">
+          <div class="bet-container mono">
+            <label for="amount">베팅하실 AST</label>
+            <input
+              v-model="bet_amount"
+              type="number"
+              placeholder="e.g. 500"
+              name="amount"
+              :max="user['balance']"
+              min="1"
+              required
+              autofocus
+            />
+            <label for="cashout">인출할 배수</label>
+            <input
+              v-model="bet_cashout"
+              type="number"
+              placeholder="e.g. 2.00"
+              name="cashout"
+              min="1.01"
+              step="0.01"
+              required
+            />
+            <button class="loginbutton" type="submit" :disabled="next_game_id == '' || can_bet == false">{{ bet_msg }}</button>
+          </div>
+        </form>
+
+        <form @submit.prevent="logout">
+          <div class="login-container mono">
+            <button class="logoutbutton" type="submit">로그아웃</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- StatusBoard -->
+      <div class="div3">
+        <h1 class="vectrex">베팅 현황</h1>
+        <!--NEXT: {{next_game_id}}<br>
+        {{betters}}-->
+        <table cellpadding="10" class="mono">
+          <tbody>
+            <tr style="border-bottom: 1px solid rgb(0, 170, 64) ;">
+              <td class="bg_green">고유학번</td>
+              <td class="bg_green" style="text-align: right;">BET</td>
+              <td class="bg_green" style="text-align: right;">배수</td>
+            </tr>
+            <tr v-for="(better, i) in betters" :key="i">
+              <td :class="{ bg_green: better[2] < score_float, bg_red: is_crashed && better[2] >= score_float }" scope="row">{{ better[0]  }}</th>  
+              <td :class="{ bg_green: better[2] < score_float, bg_red: is_crashed && better[2] >= score_float }" style="text-align: right;">{{ better[1] + " AST" }}</td> 
+              <td :class="{ bg_green: better[2] < score_float, bg_red: is_crashed && better[2] >= score_float }" style="text-align: right;">{{ better[2] >= score_float ? '-' : better[2].toFixed(2) }}</td>  
+           </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Chat -->
+      <div class="div4">
+        <div class="chatbox">
+          <h1 class="vectrex">궁금한 점이 있으시다면 스텝을 불러 주세요.</h1>
+          <!--<div class="chatlog">
+            <ul v-for="(item, index) in chat_data">
+              [System] {{item}}
+            </ul>
+          </div>-->
+        </div>
+        <!--<div class="chatinput">
+          <input
+            type="text"
+            class="mono"
+            :placeholder="loggedIn ? '입력 후 Enter 키를 눌러 보내기' : '채팅하려면 먼저 로그인하세요.'"
+            name="chat"
+            required
+            style="width: 90%;"
+            :disabled="!loggedIn"
+          />
+          <button class="mono" style="width: 9%; float: right;">
+            Send (Enter)
+          </button>
+        </div>-->
+      </div>
+    </div>
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
+    <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script type="text/javascript" src="smoothie.js"></script>
+    
+
+    <script>
+      const socket = io(`http://43.200.238.221:5000`)
+
+      // var ipc = require('electron').ipcRenderer;
+      // var authButton = document.getElementById('auth-button');
+      // authButton.addEventListener('click', function(){
+      //     ipc.once('actionReply', function(event, response){
+      //         processResponse(response);
+      //     })
+      //     ipc.send('invokeAction', 'someData');
+      // });
+
+      const { createApp } = Vue
+
+      // var scoreText = document.getElementById('score');
+      var sc = ''
+
+      socket.on('ok', () => {
+        console.log('OK received renderer') // not displayed
+      })
+
+      createApp({
+        data() {
+          return {
+            score: 'DISCONNECTED',
+            score_float: 1.0,
+            message: 'Hello Vue!',
+            chat_data: [],
+            disconnected: true,
+            loggedIn: false,
+            username: '',
+            password: '',
+            token: '',
+            user: {},
+            login_msg: 'ASSEMBLY 계정으로 로그인하기',
+            bet_amount: undefined,
+            bet_cashout: undefined,
+            is_counting_scores: false,
+            is_crashed: false,
+            next_game_id: "",
+            bet_msg: '베팅하기',
+            can_bet: false,
+            betters: [],
+            history: [],
+            announced_time: 0
+          }
+        },
+        async mounted() {
+          graph_id = setInterval(function() {
+            //console.log(new Date().getTime() - this.announced_time)
+            series.append(new Date().getTime(), this.score_float);
+            //console.log(this.score_float)
+          }.bind(this), 50);
+
+          socket.on('connect', () => {
+            this.disconnected = false
+            this.score = 'CONNECTING...'
+            console.log('Connected') // displayed
+            // socket.emit('test');
+            //
+          })
+          socket.on('score', (a) => {
+            //console.log(a);
+            // scoreText.innerText = (a / 100).toFixed(2) + "x";
+            this.can_bet = false;
+            this.bet_msg = '다음 베팅까지 대기하세요.'
+
+            this.score = (a / 100).toFixed(2) + 'x'
+            this.score_float = (a / 100)
+            chart.options.grid.fillStyle = "rgba(0, 170, 64, 0.2)"
+            
+            series.disabled = false;
+
+            
+          })
+          socket.on('next_game_id', (gid) => {
+            this.next_game_id = gid;
+
+            
+          })
+          socket.on('busted', (s) => {
+            this.score = "꼴았습니다! @ " + (s / 100).toFixed(2) + 'x';
+            this.is_counting_scores = false
+            this.is_crashed = true
+            //clearInterval(graph_id);
+            //series = new TimeSeries();
+
+            // chart.seriesSet[0].options.strokeStyle = "rgb(232, 9, 58)"
+            // console.log(series.disabled)
+            chart.options.grid.fillStyle = "rgba(232, 9, 58, 0.2)"
+            // this.score_float = 1.0;
+            series.disabled = true;
+            series.clear();
+            
+            
+          })
+          socket.on('game', (g) => {
+            
+            this.chat_data.push(g)
+            // console.log("fuck");
+            this.scrollToEnd()
+          })
+          socket.on('final_betters', (bt) => {
+            // this.betters = bt
+          })
+          socket.on('add_better', (bt) => {
+            this.betters.push(bt)
+          })
+          socket.on('update_user', (u) => {
+            if (u["username"] == this.user["stu_num"]){
+              this.user["balance"] = u["balance"]
+              this.bet_msg = "베팅 완료!"
+            }
+          })
+          socket.on('history', (his) => {
+            // console.log(his)
+            this.history = his;
+          })
+          socket.on('time_announce', (t) => {
+            this.is_crashed = false
+            this.bet_msg = "베팅하기"
+            this.betters = []
+            this.can_bet = true;
+            this.score_float = 1.0;
+            series.clear();
+            this.announced_time = t
+            // console.log(this.getRealTime());
+            var id = setInterval(function () { 
+              if (this.getRealTime() < t){
+                chart.options.grid.fillStyle = "rgba(229, 152, 35, 0.2)"
+                this.score = "Next Game in: " + ((t - this.getRealTime()) / 1000).toFixed(1) + " seconds";
+              }  else {
+                clearInterval(id);
+                
+                this.is_counting_scores = true
+                
+                return
+              }
+            }.bind(this), 0.1);
+          })
+        },
+        methods: {
+          async scrollToEnd() {
+            // const f = this.$el.getElementsByClassName('.chatlog');
+            //if (f) {
+            //  f.scrollIntoView({behavior: "smooth", block: "end"});
+            //}
+          },
+          async sendLogin() {
+            // `this` inside methods points to the current active instance
+            this.login_msg = "갱신중..."
+            await fetch('http://43.200.238.221:5000/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                username: this.username,
+                password: this.password,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data['result'] == 'success') {
+                  this.token = data['data']['token']
+
+                  fetch(
+                    'http://43.200.238.221:5000/user?username=' + this.username,
+                    {
+                      method: 'GET',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                    },
+                  )
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data['result'] == 'success') {
+                        this.user = data['user']
+                        console.log(this.user)
+                      } else {
+                      }
+                    })
+
+                  this.loggedIn = true
+                } else {
+                  this.login_msg = data['msg']
+                }
+              })
+
+            // `event` is the native DOM event
+            // if (event) {
+            //   alert(event.target.tagName);
+            // }
+          },
+          getRealTime(){ 
+            d = new Date();
+            return d.getTime();
+          },
+          async sendBet(){
+            // alert("bet")
+            this.can_bet = false;
+            this.bet_msg = "처리중..."
+            await socket.emit("bet", {
+              "username": this.user["stu_num"],
+              "amount": this.bet_amount,
+              "cashout": this.bet_cashout,
+              "game_id": this.next_game_id
+            });
+          },
+          async logout(){
+            this.loggedIn = false;
+            this.user = {};
+            this.token = "";
+            this.username = "";
+            this.password = "";
+            this.login_msg = "ASSEMBLY 계정으로 로그인하기";
+
+          }
+        },
+      }).mount('#app')
+
+      var chart = new SmoothieChart({minValue:1.0}),
+      canvas = document.getElementById('smoothie-chart'),
+      series = new TimeSeries();
+
+
+      chart.addTimeSeries(series, {lineWidth:4, strokeStyle: "#00aa40"});
+
+      chart.streamTo(canvas, 50);
+      
+    </script>
   </body>
 </html>

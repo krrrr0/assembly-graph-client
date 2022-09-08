@@ -1,15 +1,27 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow} = require('electron')
+// Enable live reload for all the files inside your project directory
+require('electron-reload')(__dirname);
+
+// Enable live reload for Electron too
+// require('electron-reload')(__dirname, {
+//   // Note that the path to electron may vary according to the main file
+//   electron: require(`${__dirname}/node_modules/electron`)
+// });
+
+
 const path = require('path')
 
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    frame: false,
+    fullscreen: true
   })
 
   // and load the index.html of the app.
@@ -41,3 +53,4 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+

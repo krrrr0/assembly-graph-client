@@ -1,3 +1,347 @@
 /* styles.css */
 
+* {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important; 
+    -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important; 
+    outline: none !important;
+    color: rgb(211, 211, 211);
+    user-select: none; 
+    scrollbar-width: thin;
+    scrollbar-color: #333 #4c4c4c;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgb(12, 18, 39); 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 153, 252, 0.4); 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 153, 252, 0.8); 
+}
+
+
+*::placeholder {
+    color: rgba(211, 211, 211, 0.8);
+}
+
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Vectrex-Bold';
+    src: url('fonts/vectrex-bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Vectrex-Regular';
+    src: url('fonts/vectrex-regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Vectrex-Light';
+    src: url('fonts/vectrex-light.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Pretendard-Regular';
+    margin: 0;
+    background-color: rgb(6, 9, 20);
+    color: #fff
+}
+
+button {
+  background-color: rgba(0, 170, 64, 0.2);
+  border: none;
+  color: rgb(211, 211, 211);
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border: 1px solid rgb(0, 170, 64);
+  cursor: pointer;
+}
+
+button:hover {
+    background-color:rgb(26, 41, 90);
+}
+
+input {
+  background-color: rgb(12, 18, 39);
+  border: none;
+  border-bottom: 2px solid rgb(26, 41, 90);
+  box-shadow: none;
+}
+
+input:focus {
+    outline: 2px solid rgb(59, 153, 252) !important;
+}
+
+input {
+    padding-left: 10px;
+}
+
+ul {
+    padding: 0;
+    text-decoration: none;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.parent {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    /*grid-column-gap: 5px;
+    grid-row-gap: 5px;
+    */
+    /*border-top: 1px solid rgba(211, 211, 211, 0.5);
+    border-left: 1px solid rgba(211, 211, 211, 0.5);
+    */height: 100vh;
+}
+    
+.div1 { grid-area: 1 / 1 / 6 / 5; }
+.div2 { grid-area: 1 / 5 / 6 / 7; }
+.div3 { grid-area: 1 / 7 / 6 / 9; }
+.div4 { grid-area: 6 / 1 / 7 / 9; } 
+
+.parent > div {
+    border-right: 1px solid rgba(211, 211, 211, 0.5);
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
+    padding: 20px;
+}
+
+.div1 {
+    /*background-color: rgba(0, 170, 64, 0.1);*/
+    padding-top: 10px !important;
+}
+
+.div2 {
+    /* text-align: center; */
+    padding-top: 50px !important;
+}
+
+.div2 > h1 {
+    font-size: 1.6rem;
+    margin-bottom: 50px;
+}
+
+.div3 {
+    /* text-align: center; */
+    padding-top: 50px !important;
+}
+
+.div3 > h1 {
+    font-size: 1.6rem;
+    margin-bottom: 50px;
+    
+}
+
+.div3 > table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: medium;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+}
+
+td {
+    border: none;
+}
+
+.login-container {
+    display: grid;
+    
+}
+
+.login-container > input {
+    margin-bottom: 10px;
+    height: 30px;
+    font-family: inherit;
+    font-size: 1rem;
+    padding-top: 5px;
+
+    line-height: 2 !important;
+}
+
+.login-container > button {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 40px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.logoutbutton {
+    background-color: rgba(232, 9, 58, 0.2);
+    border: 1px solid rgb(232, 9, 58);
+    height: 20px;
+    width: 80px;
+}
+
+.logoutbutton:hover {
+    background-color:rgb(26, 41, 90);
+}
+
+.bet-container {
+    display: grid;
+    
+}
+
+.bet-container > input {
+    background-color: rgba(229, 152, 35, 0.1);
+    border-bottom: 2px solid rgba(229, 152, 35, 0.3);
+    
+    margin-top: 5px;
+    margin-bottom: 10px;
+    height: 30px;
+    padding-top: 5px;
+    font-family: inherit;
+    font-size: 1rem;
+
+    line-height: 2 !important;
+}
+
+.bet-container > button {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    height: 40px;
+    font-family: inherit;
+    font-size: 1rem;
+    border: 1px solid rgb(229, 152, 35);
+    background-color: rgba(229, 152, 35, 0.2);
+}
+.bet-container > label {
+    color: rgb(229, 152, 35);
+}
+
+.bet-container > input:focus {
+    outline: 2px solid rgb(229, 152, 35) !important;
+}
+
+
+
+.div4 {
+    background-color: rgb(12, 18, 39);
+    padding: 0 !important;
+    
+    display: grid;
+    border-bottom: none !important;
+    border-right: none !important;
+}
+
+.chatbox > h1 {
+    font-size: x-large;
+    margin: 0;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.chatbox {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+
+}
+
+
+.chatlog {
+    overflow: scroll;
+    overflow-x: hidden;
+    max-height: 20vh;
+    max-width: 98vw;
+    font-family: 'Consolas', 'Pretendard-Regular';
+}
+
+.chatinput {
+    align-self: end;
+}
+
+.chatinput > input {
+    background-color: rgba(0, 170, 64, 0.2);
+    font-size: 1.2rem;
+    border: none;
+    line-height: 3 !important;
+    
+}
+.chatinput > input:focus {
+    outline: none !important;
+    background-color: rgba(0, 170, 64, 0.5);
+}
+
+.chatinput > * {
+    height: 50px;
+    font-size: 1rem;
+}
+
+
+.mono {
+    font-family: 'Consolas', 'Pretendard-Regular' !important;
+    /*line-height: 2.0 !important;
+    letter-spacing: normal;
+    height: auto;*/
+}
+
+.vectrex {
+    font-family: 'Vectrex-Regular', 'Pretendard-Regular' !important;
+}
+
+
+
+.yellow {
+    color: rgb(229, 152, 35);
+}
+
+.red {
+    color: rgb(232, 9, 58)
+}
+
+.green {
+    color: rgb(0, 170, 64);
+}
+
+.hidden {
+    display: none;
+}
+
+
+
+.bg_yellow {
+    background-color: rgba(229, 152, 35, 0.2);
+}
+
+.bg_green {
+    background-color: rgba(0, 170, 64, 0.2);
+}
+
+.bg_red {
+    background-color: rgba(232, 9, 58, 0.2);
+}
+
 /* Add styles here to customize the appearance of your app */
+
+#score {
+    text-align: center;
+    font-size: xxx-large;
+    position: absolute;
+    width: 500px;
+    top: 200px;
+    left: 120px;
+    text-align: center;
+    text-shadow: #000 0px 0 10px;
+}
+
+#smoothie-chart {
+
+}
